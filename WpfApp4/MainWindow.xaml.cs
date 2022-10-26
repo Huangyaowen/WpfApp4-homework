@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -49,7 +49,7 @@ namespace WpfApp4
                 sp.Orientation = Orientation.Horizontal;
 
                 cb.Content = d.Name + d.Size + d.Price;
-                cb.Margin = new Thickness(0);
+                cb.Margin = new Thickness(5);
                 cb.Width = 200;
                 cb.Height = 25;
                 
@@ -106,22 +106,49 @@ namespace WpfApp4
         {
             displayTextBlock.Text = " ";
             PlaceOrder(order);
-            //DisplayOrderDetail(order);
+            DisplayOrderDetail(order);
         }
         
         private void DisplayOrderDetail(List<OrderItem> myOrder)
         {
-            int total = 0;
-            displayTextBlock.Text = "";
+            int total = 0,sellPrice =0;
+            string message;
+
+            //displayTextBlock.Text = "";
+            displayTextBlock.Inlines.Add(new Run("您訂購的飲品"));
+            displayTextBlock.Inlines.Add(new Bold(new Run($"{takeout}")));
+            displayTextBlock.Inlines.Add(new Run("，訂購明細如下 \n"));
 
             int i = 1;
             foreach (OrderItem item in myOrder)
             {
                 total += item.SubTotal;
                 Drink drinkItem = drinks[item.Index];
-                displayTextBlock.Text += &" 訂購品項{i} : {drinkItem.Name}{drinkItem.Size}.單價{drinkItem.Price}元 X {item.Quantity}.小計{item.SubTotal}元。\n";
+                //displayTextBlock.Text += $" 訂購品項{i} : {drinkItem.Name}{drinkItem.Size}，單價{drinkItem.Price}元 X {item.Quantity}，小計{item.SubTotal}元。\n";
+                displayTextBlock.Inlines.Add(new Run($" 訂購品項{i} : {drinkItem.Name}{drinkItem.Size}，單價{drinkItem.Price}元 X {item.Quantity}，小計{item.SubTotal}元。\n"));
                 i++;
             }
+            if (total >= 500)
+            {
+                sellPrice = Convert.ToInt32(Math.Round(Convert.ToDouble(total) * 0.8));
+                message = "訂單總價超過500元，打8折";
+            }
+            else if (total >= 300)
+            {
+                sellPrice = Convert.ToInt32(Math.Round(Convert.ToDouble(total) * 0.85));
+                message = "訂單總價超過300元，打85折";
+            }
+            else if  (total >= 200) 
+            {
+                 sellPrice = Convert.ToInt32(Math.Round(Convert.ToDouble(total) * 0.9));
+                 message = "訂單總價超過200元，打9折"; 
+            }
+            else
+            {
+                sellPrice = total;
+                message = "訂購未滿200元，沒折價";
+            }
+            displayTextBlock.Inlines.Add(new Italic(new Run($"訂購總價{total}元，{message}，售價{sellPrice}元。\n")));
         }
 
         private void PlaceOrder(List<OrderItem> myOrder)
